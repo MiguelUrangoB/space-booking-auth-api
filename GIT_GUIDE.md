@@ -1,6 +1,6 @@
 # Git Guide - Troubleshooting
 
-## Missing Commits (¿Donde están los commits?)
+## Missing Commits (¿Dónde están los commits?)
 
 If you clone this repository and notice that commits are missing from the git history, it's likely because you have a **shallow clone**.
 
