@@ -24,6 +24,33 @@ class AuthController extends Controller
     /**
      * Register a new user.
      *
+     * @OA\Post(
+     *     path="/api/auth/register",
+     *     tags={"Authentication"},
+     *     summary="Registrar nuevo usuario",
+     *     description="Crea una nueva cuenta de usuario y retorna un token JWT",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password","password_confirmation"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Usuario registrado exitosamente",
+     *         @OA\JsonContent(ref="#/components/schemas/AuthResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Errores de validación",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *     )
+     * )
+     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -64,6 +91,36 @@ class AuthController extends Controller
 
     /**
      * Get a JWT via given credentials.
+     *
+     * @OA\Post(
+     *     path="/api/auth/login",
+     *     tags={"Authentication"},
+     *     summary="Iniciar sesión",
+     *     description="Autentica al usuario y retorna un token JWT",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login exitoso",
+     *         @OA\JsonContent(ref="#/components/schemas/AuthResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Credenciales inválidas",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Errores de validación",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *     )
+     * )
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
@@ -113,6 +170,27 @@ class AuthController extends Controller
     /**
      * Get the authenticated User.
      *
+     * @OA\Get(
+     *     path="/api/auth/me",
+     *     tags={"Authentication"},
+     *     summary="Obtener usuario actual",
+     *     description="Retorna los datos del usuario autenticado",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuario obtenido exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="user", ref="#/components/schemas/User")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autenticado",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function me()
@@ -125,6 +203,27 @@ class AuthController extends Controller
 
     /**
      * Log the user out (Invalidate the token).
+     *
+     * @OA\Post(
+     *     path="/api/auth/logout",
+     *     tags={"Authentication"},
+     *     summary="Cerrar sesión",
+     *     description="Invalida el token JWT actual",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logout exitoso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Successfully logged out")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autenticado",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -140,6 +239,24 @@ class AuthController extends Controller
 
     /**
      * Refresh a token.
+     *
+     * @OA\Post(
+     *     path="/api/auth/refresh",
+     *     tags={"Authentication"},
+     *     summary="Renovar token",
+     *     description="Genera un nuevo token JWT",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Token renovado exitosamente",
+     *         @OA\JsonContent(ref="#/components/schemas/AuthResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Token inválido",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -157,6 +274,28 @@ class AuthController extends Controller
 
     /**
      * Validate token.
+     *
+     * @OA\Get(
+     *     path="/api/auth/validate",
+     *     tags={"Authentication"},
+     *     summary="Validar token",
+     *     description="Valida si el token JWT es válido (uso interno)",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Token válido",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="valid", type="boolean", example=true),
+     *             @OA\Property(property="user", ref="#/components/schemas/User")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Token inválido",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      *
      * @return \Illuminate\Http\JsonResponse
      */
